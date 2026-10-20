@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chúc mừng 20/10 💖</title>
+<style>
+  :root { --bg1:#2b0a1f; --bg2:#5a1236; --pink:#ff4d88; --text:#fff0f5; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: radial-gradient(circle at 50% 40%, var(--bg2), var(--bg1));
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+    text-align: center;
+  }
+  h1 { font-size: clamp(20px, 5vw, 30px); margin-bottom: 4px; z-index: 2; }
+  .name { font-size: clamp(26px, 7vw, 40px); font-weight: 700; color: var(--pink);
+          text-shadow: 0 0 18px rgba(255,77,136,.7); margin-bottom: 8px; z-index: 2; }
+  canvas { width: min(88vw, 380px); height: min(88vw, 380px); z-index: 1; }
+  #wish { min-height: 84px; max-width: 460px; font-size: clamp(16px, 4.2vw, 20px);
+          line-height: 1.5; margin-top: 8px; z-index: 2; transition: opacity .6s; }
+  .hint { position: fixed; bottom: calc(10px + env(safe-area-inset-bottom)); font-size: 12px; opacity: .6; }
+  .fall { position: fixed; top: -30px; pointer-events: none; animation: fall linear forwards; z-index: 0; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: .2; } }
+</style>
+</head>
+<body>
+  <h1>🌸 Chúc mừng ngày 20/10 bà chã hơm 🌸</h1>
+  <div class="name">Mai Trâm Anh</div>
+  <canvas id="heart" width="400" height="400"></canvas>
+  <div id="wish"></div>
+  <div class="hint">Chạm vào màn hình để xem thêm lời chúc 💌</div>
+
+<script>
+// ====== SỬA LỜI CHÚC Ở ĐÂY ======
+const wishes = [
+  "Chúc Trâm Anh cụa tui luôn xinh đẹp, rạng rỡ như những đóa hoa mùa xuân 🌷",
+  "Chúc bà chã mỗi ngày đều tràn ngập niềm vui và nụ cười 😊",
+  "Chúc bà chã học tập thật tốt, đạt mọi điểm số mong muốn 📚",
+  "Chúc mọi dự định của bà chã đều thành công 🌟",
+  "Chúc bà chã luôn khỏe mạnh, bình an và được yêu thương thật nhiều 💖",
+  "Ngày 20/10 vui vẻ nhé, Bà chã hơm cụa tui! Ài lớp dìu 🎀"
+];
+// =================================
+
+// --- Vẽ trái tim bằng hạt (particles) ---
+const cv = document.getElementById('heart'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height, N = 700;
+const pts = [];
+for (let i = 0; i < N; i++) {
+  const t = Math.random() * Math.PI * 2;
+  const x = 16 * Math.pow(Math.sin(t), 3);
+  const y = -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t));
+  const s = Math.random() * 0.35 + 0.65;           // hạt nằm lệch vào trong cho dày
+  pts.push({ x: x*s, y: y*s, r: Math.random()*2 + 0.8, p: Math.random()*6.28 });
+}
+function draw(time) {
+  ctx.clearRect(0, 0, W, H);
+  const beat = 1 + 0.07 * Math.sin(time / 260) + 0.03 * Math.sin(time / 130);
+  const scale = 10.5 * beat;
+  for (const q of pts) {
+    const a = 0.5 + 0.5 * Math.sin(time / 400 + q.p);
+    ctx.beginPath();
+    ctx.arc(W/2 + q.x*scale, H/2 - 15 + q.y*scale, q.r, 0, 6.283);
+    ctx.fillStyle = `rgba(255, ${70 + a*60|0}, ${130 + a*40|0}, ${0.55 + a*0.45})`;
+    ctx.shadowColor = '#ff4d88'; ctx.shadowBlur = 8;
+    ctx.fill();
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+// --- Lời chúc chạy chữ ---
+const box = document.getElementById('wish');
+let wi = 0, busy = false;
+function showWish() {
+  if (busy) return; busy = true;
+  const text = wishes[wi]; wi = (wi + 1) % wishes.length;
+  box.style.opacity = 1; box.textContent = '';
+  let i = 0;
+  const chars = Array.from(text);                  // an toàn với emoji
+  const timer = setInterval(() => {
+    box.textContent += chars[i++];
+    if (i >= chars.length) { clearInterval(timer); busy = false; }
+  }, 45);
+}
+showWish();
+setInterval(() => { if (!busy) showWish(); }, 4500);
+document.body.addEventListener('click', () => { busy = false; showWish(); });
+
+// --- Tim rơi ---
+const icons = ['💖','💗','💕','🌸','🌷','✨'];
+setInterval(() => {
+  const e = document.createElement('div');
+  e.className = 'fall';
+  e.textContent = icons[Math.random()*icons.length|0];
+  e.style.left = Math.random()*100 + 'vw';
+  e.style.fontSize = (14 + Math.random()*18) + 'px';
+  e.style.animationDuration = (5 + Math.random()*5) + 's';
+  document.body.appendChild(e);
+  setTimeout(() => e.remove(), 10500);
+}, 350);
+</script>
+</body>
+</html>
